@@ -14,7 +14,7 @@ const Login: React.FC = () => {
         
         {/* Left Column: Image */}
         <div className="hidden lg:flex flex-1 items-center justify-center bg-[#0c0c0c]">
-          <img src="/cover.jpeg" alt="Cover" className="w-full h-full object-cover rounded-l-xl" />
+          <img src="/rocket.jpeg" alt="Cover" className="w-full h-full object-cover rounded-l-xl" />
         </div>
 
         {/* Right Column: Form */}
