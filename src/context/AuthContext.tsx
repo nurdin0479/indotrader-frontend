@@ -1,60 +1,79 @@
-import { createContext, useContext, useState } from "react";
-import axios from "axios";
+// src/context/AuthContext.tsx
+import React, { createContext, useContext, useEffect, useState } from "react";
+import jwtDecode from "jwt-decode";
+import { api, setAuthToken } from "../lib/api";
 
 type User = {
   id: number;
   email: string;
-  role: "admin" | "user";
+  role?: "admin" | "user" | string;
 };
 
-type AuthContextType = {
+type AuthContextValue = {
   user: User | null;
+  token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+};
+
+function parseUserFromToken(token: string | null): User | null {
+  if (!token) return null;
+  try {
+    // assume token payload has { sub, email, role } or adjust accordingly
+    const payload: any = jwtDecode(token);
+    return {
+      id: payload.sub ?? payload.user_id ?? 0,
+      email: payload.email ?? "",
+      role: payload.role ?? payload?.roles ?? "user",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("INDOTRADER_TOKEN"));
+  const [user, setUser] = useState<User | null>(() => parseUserFromToken(localStorage.getItem("INDOTRADER_TOKEN")));
   const [loading, setLoading] = useState(false);
 
-  const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      const res = await axios.post("http://indotrader.my.id/auth/login", {
-        email,
-        password,
-      });
+  useEffect(() => {
+    setAuthToken(token);
+    setUser(parseUserFromToken(token));
+  }, [token]);
 
-      if (res.data?.access_token) {
-        localStorage.setItem("token", res.data.access_token);
-        setUser(res.data.user);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      // Adjust path if backend has different login endpoint
+      const res = await api.post("/auth/login", { email, password });
+      const access = res.data.access_token ?? res.data.token ?? res.data.accessToken;
+      if (!access) throw new Error("No access token returned");
+      setToken(access);
+      setAuthToken(access);
+      setUser(parseUserFromToken(access));
     } finally {
       setLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    setToken(null);
+    setAuthToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-  return ctx;
 };

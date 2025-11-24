@@ -1,11 +1,39 @@
-import { createBrowserRouter } from "react-router-dom";
+// src/router.tsx
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import Dashboard from "./pages/admin/Dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
+import UserDashboard from "./pages/user/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-export const router = createBrowserRouter([
-  { path: "/", element: <Login /> },
-  { path: "/login", element: <Login /> },
+export function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
 
-  // ADMIN
-  { path: "/admin/dashboard", element: <Dashboard /> },
-]);
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* fallback */}
+        <Route path="*" element={<div className="p-8">404 not found</div>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

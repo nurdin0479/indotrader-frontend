@@ -1,87 +1,65 @@
+// src/pages/auth/Login.tsx
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "@tanstack/react-router";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-interface LoginForm {
+type FormData = {
   email: string;
   password: string;
-}
+};
 
-const Login: React.FC = () => {
-  const { register, handleSubmit } = useForm<LoginForm>();
-  const { login, loading } = useAuth();
+export default function Login() {
+  const { register, handleSubmit } = useForm<FormData>();
+  const auth = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = React.useState<string | null>(null);
 
-  const onSubmit = async (data: LoginForm) => {
-    const success = await login(data.email, data.password);
-
-    if (success) {
-      navigate({ to: "/dashboard" }); // otomatis masuk
-    } else {
-      alert("Login gagal, email atau password salah!");
+  const onSubmit = async (data: FormData) => {
+    setError(null);
+    try {
+      await auth.login(data.email, data.password);
+      // redirect based on role
+      if (auth.user?.role === "admin") navigate("/admin/dashboard");
+      else navigate("/dashboard");
+    } catch (e: any) {
+      setError(e?.response?.data?.detail ?? e.message ?? "Login failed");
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0d0d0d] to-[#121212] overflow-hidden">
-      
-      {/* Floating Blobs */}
-      <div className="absolute w-[200px] h-[200px] top-[10%] left-[20%] bg-cyan-400 opacity-30 rounded-full animate-floatBlob z-0"></div>
-      <div className="absolute w-[300px] h-[300px] top-[50%] left-[70%] bg-cyan-300 opacity-20 rounded-full animate-floatBlob delay-2000 z-0"></div>
-      <div className="absolute w-[250px] h-[250px] top-[70%] left-[30%] bg-cyan-200 opacity-15 rounded-full animate-floatBlob delay-4000 z-0"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-      {/* Center Card */}
-      <div className="relative z-10 w-full max-w-[600px] h-[600px] bg-white/10 backdrop-blur-md rounded-xl shadow-xl flex flex-col lg:flex-row overflow-hidden">
-        
-        {/* Left Column: Image */}
-        <div className="hidden lg:flex flex-1 items-center justify-center bg-[#0c0c0c]">
-          <img src="/rocket.jpeg" alt="Cover" className="w-full h-full object-cover rounded-l-xl" />
-        </div>
+        {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
 
-        {/* Right Column: Form */}
-        <div className="flex-1 flex flex-col justify-center p-8">
-          <h2 className="text-3xl text-cyanGlow font-extrabold uppercase tracking-wide mb-6 drop-shadow-neon text-center lg:text-left">
-            Login
-          </h2>
-          
-          <form className="space-y-4 w-full" onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col lg:flex-row gap-4 w-full">
-              <input 
-                type="email"
-                placeholder="Email"
-                className="input input-bordered flex-1 bg-white/20 text-white placeholder-white/50 border-cyan-400 focus:border-cyan-500 focus:ring-cyan-400"
-                {...register("email", { required: true })}
-              />
-              <input 
-                type="password"
-                placeholder="Password"
-                className="input input-bordered flex-1 bg-white/20 text-white placeholder-white/50 border-cyan-400 focus:border-cyan-500 focus:ring-cyan-400"
-                {...register("password", { required: true })}
-              />
-            </div>
-
-            <input 
-              type="submit"
-              value={loading ? "Processing..." : "Sign In"}
-              disabled={loading}
-              className="btn w-full bg-cyanGlow text-white text-lg font-semibold shadow-lg hover:shadow-cyanGlow/50 transition-all duration-300 mt-4 disabled:opacity-50"
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Email</label>
+            <input
+              {...register("email", { required: true })}
+              type="email"
+              className="w-full mt-1 p-2 border rounded-md"
+              placeholder="admin@indotrader.com"
             />
-          </form>
+          </div>
 
-          <p className="mt-4 text-cyan-200 text-sm text-center lg:text-left">
-            Are you new here? Please <a href="#" className='text-cyanGlow font-semibold hover:underline'>Sign Up</a>
-          </p>
+          <div>
+            <label className="text-sm font-medium">Password</label>
+            <input
+              {...register("password", { required: true })}
+              type="password"
+              className="w-full mt-1 p-2 border rounded-md"
+              placeholder="******"
+            />
+          </div>
 
-          <div className='divider text-cyanGlow my-2'>OR</div>
-
-          <button className='btn w-full bg-cyanGlow flex items-center justify-center gap-2 shadow-lg hover:shadow-cyanGlow/50 transition-all duration-300'>
-            <img className='w-5' src="/google.png" alt="Google" /> Continue with Google
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+            Login
           </button>
-        </div>
+        </form>
       </div>
     </div>
-  )
+  );
 }
-
-export default Login;
