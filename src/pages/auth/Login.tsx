@@ -1,6 +1,28 @@
 import React from "react";
+import { useForm } from "react-hook-form";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "@tanstack/react-router";
+
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 const Login: React.FC = () => {
+  const { register, handleSubmit } = useForm<LoginForm>();
+  const { login, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: LoginForm) => {
+    const success = await login(data.email, data.password);
+
+    if (success) {
+      navigate({ to: "/dashboard" }); // otomatis masuk
+    } else {
+      alert("Login gagal, email atau password salah!");
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0d0d0d] to-[#121212] overflow-hidden">
       
@@ -23,24 +45,27 @@ const Login: React.FC = () => {
             Login
           </h2>
           
-          <form className="space-y-4 w-full">
+          <form className="space-y-4 w-full" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col lg:flex-row gap-4 w-full">
               <input 
                 type="email"
                 placeholder="Email"
                 className="input input-bordered flex-1 bg-white/20 text-white placeholder-white/50 border-cyan-400 focus:border-cyan-500 focus:ring-cyan-400"
+                {...register("email", { required: true })}
               />
               <input 
                 type="password"
                 placeholder="Password"
                 className="input input-bordered flex-1 bg-white/20 text-white placeholder-white/50 border-cyan-400 focus:border-cyan-500 focus:ring-cyan-400"
+                {...register("password", { required: true })}
               />
             </div>
 
             <input 
               type="submit"
-              value="Sign in"
-              className="btn w-full bg-cyanGlow text-white text-lg font-semibold shadow-lg hover:shadow-cyanGlow/50 transition-all duration-300 mt-4"
+              value={loading ? "Processing..." : "Sign In"}
+              disabled={loading}
+              className="btn w-full bg-cyanGlow text-white text-lg font-semibold shadow-lg hover:shadow-cyanGlow/50 transition-all duration-300 mt-4 disabled:opacity-50"
             />
           </form>
 
