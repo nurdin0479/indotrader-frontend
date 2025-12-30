@@ -10,11 +10,11 @@ export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/Login" replace />} />
         <Route path="/login" element={<Login />} />
 
         <Route
-          path="/admin/dashboard"
+          path="/admin/Dashboard"
           element={
             <ProtectedRoute requiredRole="admin">
               <AdminDashboard />
@@ -23,7 +23,7 @@ export function AppRoutes() {
         />
 
         <Route
-          path="/dashboard"
+          path="/user/Dashboard"
           element={
             <ProtectedRoute requiredRole="user">
               <UserDashboard />

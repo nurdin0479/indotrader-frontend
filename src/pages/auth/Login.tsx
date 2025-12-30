@@ -20,8 +20,8 @@ export default function Login() {
     try {
       await auth.login(data.email, data.password);
       // redirect based on role
-      if (auth.user?.role === "admin") navigate("/admin/dashboard");
-      else navigate("/dashboard");
+      if (auth.user?.role === "admin") navigate("/admin/Dashboard");
+      else navigate("user/Dashboard");
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? e.message ?? "Login failed");
     }

@@ -15,8 +15,8 @@ function ProtectedRoute({
   const { user, loading } = useAuth();
 
   if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (role && user.role !== role) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/Login" replace />;
+  if (role && user.role !== role) return <Navigate to="/Login" replace />;
 
   return children;
 }
@@ -26,10 +26,10 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/Login" element={<Login />} />
 
           <Route
-            path="/admin/dashboard"
+            path="/admin/Dashboard"
             element={
               <ProtectedRoute role="admin">
                 <AdminDashboard />
@@ -38,7 +38,7 @@ export default function App() {
           />
 
           <Route
-            path="/dashboard"
+            path="/user/Dashboard"
             element={
               <ProtectedRoute role="user">
                 <UserDashboard />
