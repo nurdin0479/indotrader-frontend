@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+//import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
