@@ -1,5 +1,5 @@
-// src/components/layout/AdminLayout.tsx
-import { Outlet } from "@tanstack/react-router";
+// Hanya Outlet — tidak ada ReactNode, tidak ada children
+import { Outlet } from '@tanstack/react-router';
 
 export default function AdminLayout() {
   return (

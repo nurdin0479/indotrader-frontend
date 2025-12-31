@@ -1,43 +1,51 @@
-// src/router/index.tsx
-import { createRouter, createRootRoute, createRoute } from "@tanstack/react-router";
-import { Outlet } from "@tanstack/react-router";
+import {
+  createRouter,
+  createRootRoute,
+  createRoute,
+} from '@tanstack/react-router';
 
-// 🔹 Layout sederhana (inline, tanpa file terpisah dulu — untuk testing)
-const AppLayout = () => (
-  <div className="min-h-screen bg-gray-900 text-white">
-    <header className="p-4 bg-black">Admin Panel</header>
-    <main className="p-6">
-      <Outlet />
-    </main>
-  </div>
-);
+// Import components
+import AdminLayout from '../components/layout/AdminLayout';
+import Login from '../pages/auth/Login';
+import AdminDashboard from '../pages/admin/Dashboard';
+import UserDashboard from '../pages/user/Dashboard';
 
-// 🔹 Component dummy (pastikan ada)
-const Login = () => <div>Login Page</div>;
-const Dashboard = () => <div>Dashboard</div>;
-
-// 🔹 Routes
+// Root route (with layout)
 const rootRoute = createRootRoute({
-  component: AppLayout,
+  component: AdminLayout,
 });
 
+// Routes
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/",
+  path: '/',
   component: Login,
 });
 
-const dashboardRoute = createRoute({
+const adminDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/dashboard",
-  component: Dashboard,
+  path: '/admin/dashboard',
+  component: AdminDashboard,
 });
 
-const routeTree = rootRoute.addChildren([loginRoute, dashboardRoute]);
+const userDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dashboard',
+  component: UserDashboard,
+});
 
+// Build tree
+const routeTree = rootRoute.addChildren([
+  loginRoute,
+  adminDashboardRoute,
+  userDashboardRoute,
+]);
+
+// Export router
 export const router = createRouter({ routeTree });
 
-declare module "@tanstack/react-router" {
+// Type registration (wajib)
+declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
   }
