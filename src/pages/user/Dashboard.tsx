@@ -1,5 +1,4 @@
 // src/pages/user/Dashboard.tsx
-import React from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function UserDashboard() {
